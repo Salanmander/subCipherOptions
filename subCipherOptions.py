@@ -9,13 +9,11 @@
 
 # Interesting example. Run on "PN PU GV WSJ TGBPT WL TPVK NOGN AOKV CWE OGDK
 # KBISEJKJ NOK PTXWUUPHSK AOGNKDKZ ZKTGPVU OWAKDKZ PTXZWHGHSK TEUN HK NOK NZENO"
-# (This will take far too long.)
-# then on "PTXWUUPHSK PN PU GV WSJ TGBPT WL TPVK NOGN AOKV CWE OGDK KBISEJKJ
-# NOK PTXWUUPHSK AOGNKDKZ ZKTGPVU OWAKDKZ PTXZWHGHSK TEUN HK NOK NZENO"
-# (the same thing with an uncommon word at the beginning. This will finish
-# fairly quickly.)
-# TODO: runtime could be improved on some strings by running results in a
-#  different order. Maybe longest word first? Or fewest individual matches first?
+#
+# Takes far too long on strings of several short words with no long words
+# (For example "PN PU GV WSJ" takes an extremely long time.)
+# The former examples is saved from this by matching long words first.
+
 
 import json
 import time
