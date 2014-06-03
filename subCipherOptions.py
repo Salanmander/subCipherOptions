@@ -18,6 +18,7 @@
 #  different order. Maybe longest word first? Or fewest individual matches first?
 
 import json
+import time
 
 # Takes a list of words and builds a tree out of it
 # Tree is implementes as a dict, where each leaf is the string that is the
@@ -86,7 +87,7 @@ def createWordList(trim = True):
 
 
 def checkTemplate(template, debug = False):
-
+    startTime = time.time()
     # Set up initials so they can be reset after every discarded word
     fixedTemplateChars = []
     fixedTemplateChars_Init = []
@@ -97,12 +98,22 @@ def checkTemplate(template, debug = False):
     fixedMapping = dict()
     fixedMapping_Init = dict()
 
+    # reorder template to put longest words first
+    template_tuples = []
     
-    try:
-        len(words)
-    except:
-        words = createWordList()
+    for i in range(len(template)):
+        template_tuples.append([template[i],len(template[i]),i])
 
+    # sort by length, descending
+    template_tuples = sorted(template_tuples,
+                             key = lambda x:x[1],
+                             reverse = True)
+    template = map(lambda x: x[0],template_tuples)
+
+    
+    words = createWordList()
+
+    
     # Create a list of words that match each word individually
     possibleWords = []
     for wordTemplate in template:
@@ -141,6 +152,8 @@ def checkTemplate(template, debug = False):
 
         possibleWords.append(thisPossibleWords)
 
+    setupDoneTime = time.time()
+
     # For every word in the template we'll be looking back at all previous valid
     # prefixes, and checking if we can add it
 
@@ -170,9 +183,36 @@ def checkTemplate(template, debug = False):
         # After we've checked all words at this layer against all previous
         # prefixes, update to use the new prefixes.
         validPrefixes = newPrefixes
-                              
+
+    matchingDoneTime = time.time()
+
+    retVal= []
+    for i in range(len(validPrefixes)):
+        validPrefixes[i] = validPrefixes[i][0].split(' ')
+        blank = []
+        for j in range(len(template)):
+            blank.append([])
+        retVal.append(blank)
+
+    for i in range(len(validPrefixes)):
+        for j in range(len(template)):
+            originalInd = template_tuples[j][2]
+
+            retVal[i][originalInd] = validPrefixes[i][j]
+
+        retVal[i] = ' '.join(retVal[i])
+
+    doneTime = time.time()
+
+    print("Time to find individual word matches: " +
+          str(setupDoneTime-startTime))
+    print("Time to match words to each other: " +
+          str(matchingDoneTime-setupDoneTime))
+    print("Time to reformat output: " +
+          str(doneTime - matchingDoneTime))
+    
     # returning only the first part of each element
-    return map(lambda x: x[0],validPrefixes)
+    return retVal
 
 # Recursively searches a tree of possible next words
 # Returns an array of new prefixes, including the mapping used for that prefix
